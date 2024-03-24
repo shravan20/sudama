@@ -1,12 +1,15 @@
 import React, { useState, useRef } from 'react';
 import { Stage, Layer, Line, Text, Image as KonvaImage } from 'react-konva';
 import useImage from 'use-image';
+import image1 from './assets/1.png';
+import image2 from './assets/2.png';
+import image3 from './assets/3.png';
 
 const ImageContainer = () => {
     const imageUrls = [
-        '../assets/1.jpeg',
-        '../assets/2.jpeg',
-        '../assets/3.jpeg'
+        image1,
+        image2,
+        image3
     ];
 
     const [selectedImageUrl, setSelectedImageUrl] = useState(null);
