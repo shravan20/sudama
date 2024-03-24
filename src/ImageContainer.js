@@ -4,11 +4,9 @@ import useImage from 'use-image';
 
 const ImageContainer = () => {
     const imageUrls = [
-        'https://picsum.photos/200',
-        'https://picsum.photos/201',
-        'https://picsum.photos/202',
-        'https://picsum.photos/203',
-        'https://picsum.photos/204  ',
+        '../assets/1.jpeg',
+        '../assets/2.jpeg',
+        '../assets/3.jpeg'
     ];
 
     const [selectedImageUrl, setSelectedImageUrl] = useState(null);
