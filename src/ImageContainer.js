@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Stage, Layer, Image as KonvaImage } from 'react-konva';
+import React, { useState, useRef } from 'react';
+import { Stage, Layer, Line, Text, Image as KonvaImage } from 'react-konva';
 import useImage from 'use-image';
 
 const ImageContainer = () => {
@@ -14,9 +14,37 @@ const ImageContainer = () => {
     const [selectedImageUrl, setSelectedImageUrl] = useState(null);
     const [selectedImage] = useImage(selectedImageUrl);
 
+
     const handleImageSelect = (imageUrl) => {
         console.log(imageUrl);
         setSelectedImageUrl(imageUrl);
+    };
+
+
+    const [tool, setTool] = useState('pen');
+    const [lines, setLines] = useState([]);
+    const isDrawing = useRef(false);
+
+    const handleMouseDown = (e) => {
+        isDrawing.current = true;
+        const pos = e.target.getStage().getPointerPosition();
+        setLines([...lines, { tool, points: [pos.x, pos.y] }]);
+    };
+
+    const handleMouseMove = (e) => {
+        if (!isDrawing.current) {
+            return;
+        }
+        const stage = e.target.getStage();
+        const point = stage.getPointerPosition();
+        let lastLine = lines[lines.length - 1];
+        lastLine.points = lastLine.points.concat([point.x, point.y]);
+        lines.splice(lines.length - 1, 1, lastLine);
+        setLines([...lines]);
+    };
+
+    const handleMouseUp = () => {
+        isDrawing.current = false;
     };
 
     return (
@@ -35,9 +63,15 @@ const ImageContainer = () => {
 
             {/* Canvas Div */}
             <div style={{ width: '50%', marginLeft: '20px' }}>
-                <h2 style={{ textAlign: 'center', fontWeight: 'bold', marginBottom: '10px' }}>Preview</h2>
+                <h2 style={{ textAlign: 'center', fontWeight: 'bold', marginBottom: '10px' }}>Canvas Preview</h2>
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px', border: '1px solid #ccc' }}>
-                    <Stage width={300} height={300}>
+                    <Stage
+                        width={300}
+                        height={300}
+                        onMouseDown={handleMouseDown}
+                        onMousemove={handleMouseMove}
+                        onMouseup={handleMouseUp}
+                    >
                         <Layer>
                             {selectedImage && (
                                 <KonvaImage
@@ -46,9 +80,33 @@ const ImageContainer = () => {
                                     height={300}
                                 />
                             )}
+                            <Text text="Just start drawing" x={0} y={0} />
+                            {lines.map((line, i) => (
+                                <Line
+                                    key={i}
+                                    points={line.points}
+                                    stroke="#df4b26"
+                                    strokeWidth={5}
+                                    tension={0.5}
+                                    lineCap="round"
+                                    lineJoin="round"
+                                    globalCompositeOperation={
+                                        line.tool === 'eraser' ? 'destination-out' : 'source-over'
+                                    }
+                                />
+                            ))}
                         </Layer>
                     </Stage>
                 </div>
+                <select
+                    value={tool}
+                    onChange={(e) => {
+                        setTool(e.target.value);
+                    }}
+                >
+                    <option value="pen">Pen</option>
+                    <option value="eraser">Eraser</option>
+                </select>
             </div>
         </div>
     );
